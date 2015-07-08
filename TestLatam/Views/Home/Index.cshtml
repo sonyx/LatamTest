@@ -1,0 +1,88 @@
+﻿<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+
+<script id="bookTemplate" type="text/html">
+    <li>
+        Book Name: ${ Name }
+        Price:${ Price }
+        <a>
+            Remove
+        </a>
+
+    </li>
+</script>
+<br>
+<div class="grid_16 body-container">
+    <div>
+        <label for="Name"> Name</label>
+        <input type="text" name="Name" id="name" />
+        <label for="Price">Price</label>
+        <input type="text" name="Price" id="price" />
+        <input type="submit" value="Add" />
+        <label for="bookId">Serach By ID</label>
+        <input type="text" size="20" id="bookId" />
+        <input type="button"
+               onclick="find();" value="Search" />
+        <label id="book">
+        </label>
+    </div>
+    <div>
+        <ul class="books" id="books"></ul>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $.getJSON(
+            "api/books",
+            function (data) {
+                $.each(data,
+                    function (index, value) {
+                        $("#bookTemplate").tmpl(value).appendTo("#books");
+                    }
+                );
+                $("#loader").hide();
+                $("#addBook").show();
+            }
+        );
+
+        $("#addBook").submit(function () {
+            $.post(
+                "api/books",
+                $("#addBook").serialize(),
+                function (value) {
+                    $("#bookTemplate").tmpl(value).appendTo("#books");
+                    $("#name").val("");
+                    $("#price").val("");
+                },
+                "json"
+            );
+            return false;
+        });
+        $(".removeBook").live("click", function () {
+            $.ajax({
+                type: "DELETE",
+                url: $(this).attr("href"),
+                context: this,
+                success: function () {
+                    $(this).closest("li").remove();
+                }
+            });
+            return false;
+        });
+        $("input[type=\"submit\"], .removeBook, .viewImage").button();
+    });
+    function find() {
+        var id = $('#bookId').val();
+        $.getJSON("api/books/" + id,
+            function (data) {
+                var str = data.Name + ': $' + data.Price;
+                $('#book').html(str);
+            })
+            .fail(
+                function (jqXHR, textStatus, err) {
+                    $('#book').html('Error: ' + err);
+                });
+    }
+
+</script>
