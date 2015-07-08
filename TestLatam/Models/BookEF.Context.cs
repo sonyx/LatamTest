@@ -25,6 +25,6 @@ namespace TestLatam.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public DbSet<Book> Books { get; set; }
+        public DbSet<Book> Books { get; set; } 
     }
 }
